@@ -33,6 +33,8 @@ add_library(messenger_common
         src/common/service_base.cpp
         src/common/http_service.cpp
         src/services/auth_service.cpp
+        src/services/user_service.cpp
+        src/services/message_service.cpp
 )
 
 target_include_directories(messenger_common PUBLIC include)
