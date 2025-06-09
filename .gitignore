@@ -1,0 +1,59 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# IDE files
+.idea/
+.vscode/
+.vs/
+*.vcxproj.user
+
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+*.dylib
+messenger
+messenger.exe
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Config files (if contain secrets)
+config/*.json
+!config/*.example.json
+
+# Dependencies (if using vcpkg)
+vcpkg_installed/
+
+# Coverage reports
+coverage/
+*.gcno
+*.gcda
+*.gcov
+
+# Profiling data
+*.prof
+gmon.out
+
+# Temporary files
+*.tmp
+*.temp
