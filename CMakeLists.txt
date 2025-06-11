@@ -35,6 +35,7 @@ add_library(messenger_common
         src/services/auth_service.cpp
         src/services/user_service.cpp
         src/services/message_service.cpp
+        src/services/websocket_service.cpp
 )
 
 target_include_directories(messenger_common PUBLIC include)
