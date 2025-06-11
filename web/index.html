@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            border-bottom-color: #007bff;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .auth-tab:hover {
+            background: #f8f9fa;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chat-area {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-list {
+            margin-bottom: 20px;
+        }
+
+        .user-item {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-item:hover {
+            background: #f8f9fa;
+        }
+
+        .user-item.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .user-item.online {
+            border-left: 4px solid #28a745;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+
+        .message.own {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.other {
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .message-header {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .typing-indicator {
+            font-style: italic;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .auth-section.logged-in {
+            display: none;
+        }
+
+        .form-validation {
+            font-size: 12px;
+            color: #dc3545;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Заголовок с авторизацией -->
+    <div class="header">
+        <!-- Вкладки авторизации -->
+        <div class="auth-section" id="authSection">
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchTab('login')">Вход</div>
+                <div class="auth-tab" onclick="switchTab('register')">Регистрация</div>
+            </div>
+
+            <!-- Форма входа -->
+            <div class="auth-form active" id="loginForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="loginUsername">Имя пользователя:</label>
+                        <input type="text" id="loginUsername" placeholder="Введите имя пользователя" value="alice">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль:</label>
+                        <input type="password" id="loginPassword" placeholder="Введите пароль" value="password123">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="login()">Войти</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма регистрации -->
+            <div class="auth-form" id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regUsername">Имя пользователя:</label>
+                        <input type="text" id="regUsername" placeholder="Введите имя пользователя">
+                        <div class="form-validation" id="usernameValidation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email:</label>
+                        <input type="email" id="regEmail" placeholder="Введите email">
+                        <div class="form-validation" id="emailValidation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Пароль:</label>
+                        <input type="password" id="regPassword" placeholder="Введите пароль">
+                        <div class="form-validation" id="passwordValidation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPasswordConfirm">Подтвердите пароль:</label>
+                        <input type="password" id="regPasswordConfirm" placeholder="Повторите пароль">
+                        <div class="form-validation" id="passwordConfirmValidation"></div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="register()">Зарегистрироваться</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация о пользователе (после входа) -->
+        <div class="user-info hidden" id="userInfo">
+            <span id="currentUser"></span>
+            <button class="btn btn-danger" onclick="logout()">Выйти</button>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content hidden" id="mainContent">
+        <!-- Боковая панель -->
+        <div class="sidebar">
+            <h3>Пользователи онлайн</h3>
+            <div class="user-list" id="userList">
+                <!-- Список пользователей будет здесь -->
+            </div>
+            <button class="btn btn-success" onclick="refreshUsers()">Обновить список</button>
+        </div>
+
+        <!-- Область чата -->
+        <div class="chat-area">
+            <h3 id="chatHeader">Выберите пользователя для чата</h3>
+            <div class="messages" id="messages">
+                <!-- Сообщения будут здесь -->
+            </div>
+            <div id="typingIndicator" class="typing-indicator hidden"></div>
+            <div class="message-input">
+                <input type="text" id="messageInput" placeholder="Введите сообщение..." disabled>
+                <button class="btn btn-primary" onclick="sendMessage()" disabled id="sendBtn">Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Конфигурация API
+    const API_BASE = 'http://localhost';
+    const SERVICES = {
+        auth: `${API_BASE}:8001`,
+        user: `${API_BASE}:8002`,
+        message: `${API_BASE}:8003`,
+        websocket: `${API_BASE}:8004`
+    };
+
+    // Глобальные переменные
+    let currentUser = null;
+    let authToken = null;
+    let selectedUser = null;
+    let onlineUsers = [];
+    let messages = [];
+
+    // Утилиты
+    function showStatus(message, isError = false) {
+        const status = document.getElementById('status');
+        status.innerHTML = `<div class="status ${isError ? 'error' : 'success'}">${message}</div>`;
+        setTimeout(() => status.innerHTML = '', 5000);
+    }
+
+    function getAuthHeaders() {
+        return {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
+    // Переключение вкладок
+    function switchTab(tabName) {
+        // Убираем активные классы
+        document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+
+        // Добавляем активные классы
+        event.target.classList.add('active');
+        document.getElementById(tabName + 'Form').classList.add('active');
+
+        // Очищаем валидацию
+        clearValidation();
+    }
+
+    // Валидация формы регистрации
+    function validateRegistration() {
+        const username = document.getElementById('regUsername').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+
+        let isValid = true;
+
+        // Валидация имени пользователя
+        if (!username || username.length < 3) {
+            document.getElementById('usernameValidation').textContent = 'Имя пользователя должно содержать минимум 3 символа';
+            isValid = false;
+        } else {
+            document.getElementById('usernameValidation').textContent = '';
+        }
+
+        // Валидация email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            document.getElementById('emailValidation').textContent = 'Введите корректный email';
+            isValid = false;
+        } else {
+            document.getElementById('emailValidation').textContent = '';
+        }
+
+        // Валидация пароля
+        if (!password || password.length < 4) {
+            document.getElementById('passwordValidation').textContent = 'Пароль должен содержать минимум 4 символа';
+            isValid = false;
+        } else {
+            document.getElementById('passwordValidation').textContent = '';
+        }
+
+        // Валидация подтверждения пароля
+        if (password !== passwordConfirm) {
+            document.getElementById('passwordConfirmValidation').textContent = 'Пароли не совпадают';
+            isValid = false;
+        } else {
+            document.getElementById('passwordConfirmValidation').textContent = '';
+        }
+
+        return isValid;
+    }
+
+    function clearValidation() {
+        document.querySelectorAll('.form-validation').forEach(element => {
+            element.textContent = '';
+        });
+    }
+
+    // Регистрация
+    async function register() {
+        if (!validateRegistration()) {
+            return;
+        }
+
+        const username = document.getElementById('regUsername').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+
+        try {
+            const response = await fetch(`${SERVICES.auth}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showStatus('Регистрация успешна! Теперь можете войти в систему');
+
+                // Переключаемся на форму входа и заполняем данные
+                switchTabProgrammatically('login');
+                document.getElementById('loginUsername').value = username;
+                document.getElementById('loginPassword').value = password;
+
+                // Очищаем форму регистрации
+                document.getElementById('registerForm').querySelectorAll('input').forEach(input => {
+                    input.value = '';
+                });
+
+            } else {
+                showStatus(data.error || 'Ошибка регистрации', true);
+            }
+        } catch (error) {
+            showStatus('Ошибка подключения к серверу', true);
+            console.error('Registration error:', error);
+        }
+    }
+
+    function switchTabProgrammatically(tabName) {
+        document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+
+        document.querySelectorAll('.auth-tab')[tabName === 'login' ? 0 : 1].classList.add('active');
+        document.getElementById(tabName + 'Form').classList.add('active');
+
+        clearValidation();
+    }
+
+    // Авторизация
+    async function login() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (!username || !password) {
+            showStatus('Введите имя пользователя и пароль', true);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${SERVICES.auth}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                currentUser = data.username;
+                authToken = data.access_token;
+
+                // Обновляем UI
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('currentUser').textContent = `Добро пожаловать, ${currentUser}!`;
+                document.getElementById('mainContent').classList.remove('hidden');
+
+                showStatus(`Вход выполнен успешно! Добро пожаловать, ${currentUser}!`);
+
+                // Подключаемся к WebSocket и загружаем пользователей
+                await connectWebSocket();
+                await loadUsers();
+
+            } else {
+                showStatus(data.error || 'Ошибка входа', true);
+            }
+        } catch (error) {
+            showStatus('Ошибка подключения к серверу', true);
+            console.error('Login error:', error);
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        authToken = null;
+        selectedUser = null;
+
+        // Возвращаем UI в исходное состояние
+        document.getElementById('authSection').classList.remove('hidden');
+        document.getElementById('userInfo').classList.add('hidden');
+        document.getElementById('mainContent').classList.add('hidden');
+
+        // Очищаем формы
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('userList').innerHTML = '';
+        document.getElementById('messages').innerHTML = '';
+
+        // Переключаемся на вкладку входа
+        switchTabProgrammatically('login');
+
+        showStatus('Вы вышли из системы');
+    }
+
+    // WebSocket подключение (имитация)
+    async function connectWebSocket() {
+        try {
+            const response = await fetch(`${SERVICES.websocket}/api/websocket/connect`, {
+                method: 'POST',
+                headers: getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showStatus('Подключено к чату');
+                console.log('WebSocket connected:', data);
+            } else {
+                showStatus('Ошибка подключения к чату', true);
+            }
+        } catch (error) {
+            showStatus('Ошибка подключения к чату', true);
+            console.error('WebSocket connect error:', error);
+        }
+    }
+
+    // Загрузка пользователей
+    async function loadUsers() {
+        try {
+            const response = await fetch(`${SERVICES.websocket}/api/websocket/online`, {
+                headers: getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                onlineUsers = data.users.filter(user => user !== currentUser);
+                renderUserList();
+            } else {
+                showStatus('Ошибка загрузки пользователей', true);
+            }
+        } catch (error) {
+            showStatus('Ошибка загрузки пользователей', true);
+            console.error('Load users error:', error);
+        }
+    }
+
+    function renderUserList() {
+        const userList = document.getElementById('userList');
+        userList.innerHTML = '';
+
+        onlineUsers.forEach(user => {
+            const userItem = document.createElement('div');
+            userItem.className = `user-item online ${user === selectedUser ? 'active' : ''}`;
+            userItem.textContent = user;
+            userItem.onclick = () => selectUser(user);
+            userList.appendChild(userItem);
+        });
+    }
+
+    function selectUser(username) {
+        selectedUser = username;
+        document.getElementById('chatHeader').textContent = `Чат с ${username}`;
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('sendBtn').disabled = false;
+
+        renderUserList();
+        loadMessages();
+    }
+
+    // Загрузка сообщений (имитация)
+    async function loadMessages() {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = `
+            <div class="message other">
+                <div class="message-header">Система</div>
+                <div>Начните общение с ${selectedUser}</div>
+            </div>
+        `;
+    }
+
+    // Отправка сообщения
+    async function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+
+        if (!message || !selectedUser) return;
+
+        try {
+            const response = await fetch(`${SERVICES.websocket}/api/websocket/send`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    to_user: selectedUser,
+                    message: message
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Добавляем сообщение в чат
+                addMessageToChat(currentUser, message, true);
+                messageInput.value = '';
+
+                // Имитируем ответ от другого пользователя (для демо)
+                setTimeout(() => {
+                    addMessageToChat(selectedUser, `Ответ на: "${message}"`, false);
+                }, 1000);
+            } else {
+                showStatus('Ошибка отправки сообщения', true);
+            }
+        } catch (error) {
+            showStatus('Ошибка отправки сообщения', true);
+            console.error('Send message error:', error);
+        }
+    }
+
+    function addMessageToChat(from, message, isOwn) {
+        const messagesDiv = document.getElementById('messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+
+        const time = new Date().toLocaleTimeString();
+        messageDiv.innerHTML = `
+            <div class="message-header">${from} - ${time}</div>
+            <div>${message}</div>
+        `;
+
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Обновление списка пользователей
+    async function refreshUsers() {
+        await loadUsers();
+        showStatus('Список пользователей обновлен');
+    }
+
+    // Обработка Enter в полях ввода
+    document.addEventListener('DOMContentLoaded', function() {
+        // Enter в поле сообщения
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Enter в форме входа
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        // Enter в форме регистрации
+        document.getElementById('regPasswordConfirm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                register();
+            }
+        });
+
+        // Валидация в реальном времени для формы регистрации
+        document.getElementById('regUsername').addEventListener('input', validateRegistration);
+        document.getElementById('regEmail').addEventListener('input', validateRegistration);
+        document.getElementById('regPassword').addEventListener('input', validateRegistration);
+        document.getElementById('regPasswordConfirm').addEventListener('input', validateRegistration);
+    });
+
+    // Автообновление списка пользователей каждые 30 секунд
+    setInterval(async () => {
+        if (authToken) {
+            await loadUsers();
+        }
+    }, 30000);
+</script>
+</body>
+</html>
