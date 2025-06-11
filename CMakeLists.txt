@@ -29,9 +29,23 @@ FetchContent_MakeAvailable(json)
 
 # Create common library
 add_library(messenger_common
+        # Common components
         src/common/logger.cpp
         src/common/service_base.cpp
         src/common/http_service.cpp
+        src/common/auth_middleware.cpp
+        src/common/request_validator.cpp
+
+        # Data managers
+        src/data/user_manager.cpp
+        src/data/connection_manager.cpp
+
+        # Handlers
+        src/handlers/auth_handlers.cpp
+        src/handlers/user_handlers.cpp
+        src/handlers/websocket_handlers.cpp
+
+        # Services
         src/services/auth_service.cpp
         src/services/user_service.cpp
         src/services/message_service.cpp
