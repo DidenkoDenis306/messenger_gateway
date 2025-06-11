@@ -39,11 +39,13 @@ add_library(messenger_common
         # Data managers
         src/data/user_manager.cpp
         src/data/connection_manager.cpp
+        src/data/message_manager.cpp
 
         # Handlers
         src/handlers/auth_handlers.cpp
         src/handlers/user_handlers.cpp
         src/handlers/websocket_handlers.cpp
+        src/handlers/message_handlers.cpp
 
         # Services
         src/services/auth_service.cpp
